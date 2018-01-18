@@ -4,83 +4,88 @@ from tkinter import messagebox
 import random
 import tkinter as tk
 
-#soon to be learning page
-#try to go back to start page
+#flashcard window
+
+
+#write window
+
+#choose what you want to learn
 class OtherFrame(tk.Toplevel):
-    def __init__(self):
+    def __init__(self,original):
         """Constructor"""
+        self.original_frame=original
         tk.Toplevel.__init__(self)
         self.geometry("400x300")
         self.title("otherFrame")
  
         # create the button
-        logoutbtn = tk.Button(self, text="Logout", command=self.onClose)
-        logoutbtn.pack()
-        
-    def hide(self): #hides frame
-        self.withdraw()
-        
-    def onClose(self): #closes frame, opens start page
-        self.hide()
-        subFrame=StartPage(self)
+        logoutbtn = tk.Button(self, text="Logout", command=self.onClose).grid(column=0,row=0, padx=5, pady=5)
 
-    def show(self): #shows main frame
-        self.update()
-        self.deiconify()
+        studylbl=tk.Label(self, text='How would you like to study?').grid(column=2, row=1)
+        flashcardbtn=tk.Button(self,text='Flashcard').grid(column=2,row=2,padx=5,pady=5)
+        writebtn=tk.Button(self,text='Write').grid(column=2,row=3,padx=5,pady=5)
+
+    def onClose(self): #closes frame, opens start page
+        self.destroy()
+        self.original_frame.show()
 
 #not working yet
 class NewAccount(tk.Toplevel):
-    def __init__(self):
+    def __init__(self,original):
         """Constructor"""
+        self.original_frame=original
         tk.Toplevel.__init__(self)
         self.geometry("400x300")
         self.title("newAccount")
 
-##        #variables
-##        newusername=StringVar()
-##        newpassword=StringVar()
-##
-##        def test(*args):
-##            print('hi')
-##            self.onClose()
-##            
-##        root=Tk()
-##        #login label
-##        createlbl=tk.Label(self, text='Create an Account').grid(column=0, row=1)
-##        #username
-##        newunlbl=tk.Label(self, text='Username: ').grid(column=0, row=2)
-##        unentry=tk.Entry(self, textvariable=newusername)
-##        unentry.grid(column=1, row=2, padx=5, pady=5)
-##        #password
-##        pwlbl=tk.Label(self, text='Password: ').grid(column=0, row=3)
-##        pwentry=tk.Entry(self, textvariable=newpassword)
-##        pwentry.grid(column=1#not working yet
+        #variables
+        newusername=StringVar()
+        newpassword=StringVar()
 
-class NewAccount(tk.Toplevel):
-    def __init__(self):
-        """Constructor"""
-        tk.Toplevel.__init__(self)
-        self.geometry("400x300")
-        self.title("newAccount")
+        #add the new account to the file
+        def createact(*args):
+            newact=[]
+            newun=unentry.get()
+            newpw=pwentry.get()
+            newact.append(newun)
+            newact.append(newpw)
+            file=open('quizlet_logins.txt','a')
+            newact=str(newact).replace('[','')
+            newact=str(newact).replace(']','')
+            newact=str(newact).replace("'",'')
+            file.write(newact+'\n')
+            self.onClose()  
 
-##        #variables
-##        newusername=StringVar()
-##        newpassword=StringVar()
-##
-##        def test(*args):
-##            print('hi')
-##            self.onClose(), row=3, padx=5, pady=5) 
-##
-##        # create the button
-##        createbtn = tk.Button(self, text="Create", command=test).grid(column=1, row=4)
+        #check to see if username is already in use
+        def test(*args):
+            print(newusername.get())
+            file=open('quizlet_logins.txt','r')
+            for line in file:
+                line=line.replace('\n','').split(',')
+                print(line)
+                if unentry==line[0]:
+                    messagebox.showinfo(title='ERROR',message='Your username is already being used, please choose another username.')
+                    break
+                #figure out a way to stop this loop
 
-    def hide(self): #hides main frame
-        self.withdraw()
- 
+        root=Tk()
+        #login label
+        createlbl=tk.Label(self, text='Create an Account').grid(column=0, row=1)
+        #username
+        newunlbl=tk.Label(self, text='Username: ').grid(column=0, row=2)
+        unentry=tk.Entry(self, textvariable=newusername)
+        unentry.grid(column=1, row=2, padx=5, pady=5)
+        #password
+        newpwlbl=tk.Label(self, text='Password: ').grid(column=0, row=3)
+        pwentry=tk.Entry(self, textvariable=newpassword)
+        pwentry.grid(column=1, row=3) #not working yet
+
+        # create the button
+        createbtn = tk.Button(self, text="Create", command=self.onClose).grid(column=1, row=4, padx=5, pady=5)
+        
     def onClose(self): #closes frame, opens start page
-        self.hide()
-        subFrame=StartPage(self)
-        print('im here')
+        self.destroy()
+        self.original_frame.show()
         
 #LOGIN SCREEN
 class StartPage(object):
@@ -95,20 +100,18 @@ class StartPage(object):
         username=StringVar()
         password=StringVar()
 
-        #check if username is valid
-        def login(*args):
-            if usernameentry.get()=='' or passwordentry.get()=='':
-                messagebox.showinfo(title='ERROR', message='You did not enter a username or password.')
-            else:
-                file=open('quizlet_logins.txt','r')
-                for line in file:
-                    info=[]
-                    line=line.replace('\n','').split(',')
-                    if usernameentry.get()==line[0] and passwordentry.get()==line[1]:
-                        self.openOtherFrame()
-                        break
-                    else:
-                        messagebox.showinfo(title='ERROR', message='You entered a username or password incorrectly.')
+##        #check if username is valid
+##        def login(*args):
+##            if usernameentry.get()=='' or passwordentry.get()=='':
+##                messagebox.showinfo(title='ERROR', message='You did not enter a username or password.')
+##            else:
+##                file=open('quizlet_logins.txt','r')
+##                for line in file:
+##                    line=line.replace('\n','').split(',')
+##                    print(line)
+##                    if usernameentry.get()==line[0] and passwordentry.get()==line[1]:
+##                        self.openOtherFrame()
+##                        break
                     
         #login label
         loginlbl=tk.Label(self.frame, text='Please Login or').grid(column=0, row=1)
@@ -121,22 +124,19 @@ class StartPage(object):
         passwordentry=tk.Entry(self.frame, textvariable=password)
         passwordentry.grid(column=1, row=3, padx=5, pady=5)
  
-        loginbtn = tk.Button(self.frame, text="Login", command=login).grid(column=1, row=4)
+        loginbtn = tk.Button(self.frame, text="Login", command=self.openOtherFrame).grid(column=1, row=4)
         createbtn=tk.Button(self.frame, text='Create Account',command=self.openNewAccount).grid(column=1, row=1, padx=5,pady=5)
-
-    def listener(self,arg1,arg2=None): #opens frame when other frame is closed
-        self.show()
  
     def hide(self): #hides main frame
         self.root.withdraw()
  
     def openOtherFrame(self): #opens other frame
         self.hide()
-        subFrame=OtherFrame()
+        subFrame=OtherFrame(self)
 
     def openNewAccount(self): #opens new account frame
         self.hide()
-        subFrame=NewAccount()
+        subFrame=NewAccount(self)
  
     def show(self): #shows main frame
         self.root.update()
