@@ -6,42 +6,25 @@ from tkinter import messagebox
 import random
 import tkinter as tk
 
-#important stuff, sets frame etc.
 root=Tk()
-##root.title("Learning Tool")
-##root.geometry('300x300')
-##menuframe=Menu(root)
-##root.config(menu=menuframe)
-##
-###MENUS
-###file w exit
-##filemenu=Menu(menuframe)
-##menuframe.add_cascade(label='File', menu=filemenu)
-##filemenu.add_command(label='Exit', command=root.quit)
-###help w instructions?
-##helpmenu=Menu(menuframe)
-##menuframe.add_cascade(label='Help', menu=helpmenu)
+#LARGE_FONT= ("Verdana", 12)
 
-#variables
-username=StringVar()
-password=StringVar()
+#basis for frames/windows being created below
+class SeaofBTCapp(object):
+    def __init__(self,parent):
+        self.root=parent
+        self.root.title('Main Frame')
+        self.container = tk.Frame(parent)
+        self.container.pack(side="top", fill="both", expand = True)
 
-LARGE_FONT= ("Verdana", 12)
-
-class SeaofBTCapp(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        container = tk.Frame(self)
-        container.pack(side="top", fill="both", expand = True)
-
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
 
-        for F in (StartPage, Study, CreateAccount, StudyWrite):
+        for F in (StartPage, Study, CreateAccount, StudyWrite, StudyFlash, Terms):
 
-            frame = F(container, self)
+            frame = F(self.container, self)
 
             self.frames[F] = frame
 
@@ -53,6 +36,7 @@ class SeaofBTCapp(tk.Tk):
         frame = self.frames[cont]
         frame.tkraise()
 
+#start page - create account or login
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
@@ -64,11 +48,12 @@ class StartPage(tk.Frame):
         password=StringVar()
 
         #check if username is valid
+        #MAKE SURE TO CHECK IF USERNAME AND PASSWORD ARE IN FILE
         def login(*args):
             if usernameentry.get()=='' or passwordentry.get()=='':
                 messagebox.showinfo(title='ERROR', message='You did not enter a username or password.')
             else:
-                controller.show_frame(Study)
+                controller.show_frame(Terms)
                     
         #login label
         loginlbl=tk.Label(self, text='Please Login or').grid(column=0, row=1)
@@ -84,21 +69,20 @@ class StartPage(tk.Frame):
         loginbtn = tk.Button(self, text="Login", command=login).grid(column=1, row=4,padx=5,pady=5)
         createbtn=tk.Button(self, text='Create Account',command=lambda: controller.show_frame(CreateAccount)).grid(column=1, row=1, padx=5,pady=5)
 
-
+#choose what they wanna study
 class Study(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
 ##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
 ##        label.pack(pady=10,padx=10)
         
-        #startpage
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
 
         studylbl=tk.Label(self, text='How would you like to study?').grid(column=2, row=1)
-        flashcardbtn=tk.Button(self,text='Flashcard').grid(column=2,row=2,padx=5,pady=5)
+        flashcardbtn=tk.Button(self,text='Flashcard',command=lambda: controller.show_frame(StudyFlash)).grid(column=2,row=2,padx=5,pady=5)
         writebtn=tk.Button(self,text='Write',command=lambda: controller.show_frame(StudyWrite)).grid(column=2,row=3,padx=5,pady=5)
 
-
+#create a new account
 class CreateAccount(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -121,21 +105,25 @@ class CreateAccount(tk.Frame):
             newact=str(newact).replace(']','')
             newact=str(newact).replace("'",'')
             file.write(newact+'\n')
-            self.onClose()  
+            controller.show_frame(StartPage)
+            messagebox.showinfo(title='',message='Your account has been created!')
 
         #check to see if username is already in use
         def test(*args):
             print(newusername.get())
+            info=[]
             file=open('quizlet_logins.txt','r')
             for line in file:
                 line=line.replace('\n','').split(',')
-                print(line)
-                if unentry==line[0]:
-                    messagebox.showinfo(title='ERROR',message='Your username is already being used, please choose another username.')
-                    break
+                #print(line)
+                info.append(line[0])
+            if unentry.get() in info:
+                messagebox.showinfo(title='ERROR', message='This username is already in use. Please choose another username.')
+            else:
+                createact()
                 #figure out a way to stop this loop
 
-        root=Tk()
+        #root=Tk()
         #login label
         createlbl=tk.Label(self, text='Create an Account').grid(column=0, row=1)
         #username
@@ -148,8 +136,69 @@ class CreateAccount(tk.Frame):
         pwentry.grid(column=1, row=3) #not working yet
 
         # create the button
-        createbtn = tk.Button(self, text="Create", command=lambda: controller.show_frame(StartPage)).grid(column=1, row=4, padx=5, pady=5)
+        createbtn = tk.Button(self, text="Create", command=test).grid(column=1, row=4, padx=5, pady=5)
 
+#terms being studied
+class Terms(tk.Frame):
+    def __init__(self, parent, controller):        
+        tk.Frame.__init__(self, parent)
+##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
+##        label.pack(pady=10,padx=10)
+        
+        logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
+        #backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)
+        savebtn=tk.Button(self, text='Save',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)
+
+        #variables
+        terms1=StringVar()
+        terms2=StringVar()
+        terms3=StringVar()
+        terms4=StringVar()
+        terms5=StringVar()
+        defns1=StringVar()
+        defns2=StringVar()
+        defns3=StringVar()
+        defns4=StringVar()
+        defns5=StringVar()
+        
+        #5 terms
+        term1lbl=tk.Label(self,text='Term').grid(column=2,row=0)
+        term1=tk.Entry(self, textvariable=terms1)
+        term1.grid(column=2, row=1, padx=5, pady=5)
+        term2=tk.Entry(self, textvariable=terms2)
+        term2.grid(column=2, row=2, padx=5, pady=5)
+        term3=tk.Entry(self, textvariable=terms3)
+        term3.grid(column=2, row=3, padx=5, pady=5)
+        term4=tk.Entry(self, textvariable=terms4)
+        term4.grid(column=2, row=4, padx=5, pady=5)
+        term5=tk.Entry(self, textvariable=terms5)
+        term5.grid(column=2, row=5, padx=5, pady=5)
+
+        #5 definitions
+        defnlbl=tk.Label(self,text='Definition').grid(column=3,row=0)
+        defn1=tk.Entry(self, textvariable=defns1)
+        defn1.grid(column=3, row=1, padx=5, pady=5)
+        defn2=tk.Entry(self, textvariable=defns2)
+        defn2.grid(column=3, row=2, padx=5, pady=5)
+        defn3=tk.Entry(self, textvariable=defns3)
+        defn3.grid(column=3, row=3, padx=5, pady=5)
+        defn4=tk.Entry(self, textvariable=defns4)
+        defn4.grid(column=3, row=4, padx=5, pady=5)
+        defn5=tk.Entry(self, textvariable=defns5)
+        defn5.grid(column=3, row=5, padx=5, pady=5)
+
+        #printing empty line.. fix it!
+        print(term1.get())
+
+##        #write to file
+##        file=open('studyterms.txt','w')
+##        file.write(term1.get()+','+defn1.get()+'\n')
+##        file.write(term2.get()+','+defn2.get()+'\n')
+##        file.write(term3.get()+','+defn3.get()+'\n')
+##        file.write(term4.get()+','+defn4.get()+'\n')
+##        file.write(term5.get()+','+defn5.get()+'\n')
+##        file.close()
+        
 #write option
 class StudyWrite(tk.Frame):
     def __init__(self, parent, controller):        
@@ -157,6 +206,23 @@ class StudyWrite(tk.Frame):
 ##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
 ##        label.pack(pady=10,padx=10)
 
+        logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
+        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)
 
-app = SeaofBTCapp()
-app.mainloop()
+        #ask to start with term or definition
+        
+#flashcard option
+class StudyFlash(tk.Frame):
+    def __init__(self, parent, controller):        
+        tk.Frame.__init__(self, parent)
+##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
+##        label.pack(pady=10,padx=10)
+
+        logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
+        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)        
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("600x400")
+    app = SeaofBTCapp(root)
+    root.mainloop()
