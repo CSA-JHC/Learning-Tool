@@ -6,8 +6,9 @@ from tkinter import messagebox
 import random
 import tkinter as tk
 
-#root=Tk()
-#LARGE_FONT= ("Verdana", 12)
+##try to make it look nicer
+##try to get everything working
+##think of ways to make this program different than others
 
 #basis for frames/windows being created below
 class SeaofBTCapp(object):
@@ -107,11 +108,12 @@ class CreateAccount(tk.Frame):
 ##        label = tk.Label(self, text="Page Two!!!", font=LARGE_FONT)
 ##        label.pack(pady=10,padx=10)
 
-        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(StartPage)).grid(column=5,row=0,padx=5,pady=5)#go back to previous pg
+        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0,padx=5,pady=5)#go back to previous pg
 
         #variables
         newusername=StringVar()
         newpassword=StringVar()
+        checkpassword=StringVar()
 
         #add the new account to the file
         def createact(*args):
@@ -144,8 +146,11 @@ class CreateAccount(tk.Frame):
             elif unentry.get()=='' or pwentry.get()=='':
                 messagebox.showinfo(title='ERROR', message='You did not enter a username or password.')
             else:
-                createact()
-                #figure out a way to stop this loop
+                if pwentry.get()==checkpwentry.get():
+                    createact()
+                else:
+                    messagebox.showinfo(title='ERROR', message='Your passwords do not match.')
+                    
             file.close()
         
         #root=Tk()
@@ -158,10 +163,14 @@ class CreateAccount(tk.Frame):
         #password
         newpwlbl=tk.Label(self, text='Password: ').grid(column=0, row=3)
         pwentry=tk.Entry(self, textvariable=newpassword, show='*')
-        pwentry.grid(column=1, row=3) #not working yet
+        pwentry.grid(column=1, row=3, padx=5, pady=5) #not working yet
+        #check password
+        checkpwlbl=tk.Label(self, text='Verify Password: ').grid(column=0, row=4)
+        checkpwentry=tk.Entry(self, textvariable=checkpassword, show='*')
+        checkpwentry.grid(column=1, row=4, padx=5, pady=5) #not working yet
 
         #create the button
-        createbtn = tk.Button(self, text="Create", command=test).grid(column=1, row=4, padx=5, pady=5)
+        createbtn = tk.Button(self, text="Create", command=test).grid(column=1, row=5, padx=5, pady=5)
 
 #terms being studied - WORKING
 class Terms(tk.Frame):
@@ -240,7 +249,7 @@ class Terms(tk.Frame):
         savebtn=tk.Button(self, text='Save',command=saveterms).grid(column=1,row=0,padx=5,pady=5)
         #printing empty line.. fix it!
         
-#write option - NEEDS WORK - give hints??
+#write option - NEEDS WORK
 class StudyWrite(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
@@ -254,7 +263,8 @@ class StudyWrite(tk.Frame):
         ask=StringVar()
 
         #use dictionary??? list wont work
-        #def check(*args):
+        def check(*args):
+            print('doing something')
             #if matches, delete text in entry box, clear label
 
             #if doesn't match, keep it there
@@ -269,33 +279,36 @@ class StudyWrite(tk.Frame):
             enterbtn=tk.Button(self, text='Check', command=check).grid(column=4, row=1, padx=5, pady=5)
         file.close()
         
-#flashcard option - NEEDS WORK
+#flashcard option - NEEDS WORK - figure out how to remove a label
 class StudyFlash(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
 ##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
 ##        label.pack(pady=10,padx=10)
 
+        def check(*args):
+            termlbl.grid_forget() #not working
+
+        def nextTerm(*args):
+            print('next')
+
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
-        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)        
+        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)        
+        flipbtn=tk.Button(self, text='Flip',command=check).grid(column=2, row=3, padx=5, pady=5)
+        nextbtn=tk.Button(self, text='Next',command=nextTerm).grid(column=3, row=3, padx=5, pady=5)
 
         #variables
         ask=StringVar()
 
-        #use dictionary??? list wont work
-        #def check(*args):
-            #if matches, delete text in entry box, clear label
-
-            #if doesn't match, keep it there
-
-        studying={}
+        #finding term to study
+        studying=[]
         file=open('studyterms.txt','r')
         for line in file:
             line=line.replace('\n','').split(',')
-            termlbl=tk.Label(self,text=line[0]).grid(column=2,row=1,padx=5,pady=5)
-            defnentry=tk.Entry(self,textvariable=ask)
-            defnentry.grid(column=3, row=1)
-            enterbtn=tk.Button(self, text='Check', command=check).grid(column=4, row=1, padx=5, pady=5)
+            x=random.randint(0,1)
+            studying.append(line[x])
+        termlbl=tk.Label(self,text=studying[0]).grid(column=2,row=1,padx=5,pady=5)
+
         file.close()
 
 if __name__ == "__main__":
