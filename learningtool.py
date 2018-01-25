@@ -41,8 +41,6 @@ class SeaofBTCapp(object):
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent)
-        #label = tk.Label(self, text="Start Page", font=LARGE_FONT)
-        #label.pack(pady=10,padx=10)
         
         #variables
         username=StringVar()
@@ -91,8 +89,6 @@ class StartPage(tk.Frame):
 class Study(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
-##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-##        label.pack(pady=10,padx=10)
         
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Terms)).grid(column=1,row=0,padx=5,pady=5)#go back to previous pg
@@ -105,8 +101,6 @@ class Study(tk.Frame):
 class CreateAccount(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-##        label = tk.Label(self, text="Page Two!!!", font=LARGE_FONT)
-##        label.pack(pady=10,padx=10)
 
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0,padx=5,pady=5)#go back to previous pg
 
@@ -176,8 +170,6 @@ class CreateAccount(tk.Frame):
 class Terms(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
-##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-##        label.pack(pady=10,padx=10)
         
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
         #backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)
@@ -249,12 +241,10 @@ class Terms(tk.Frame):
         savebtn=tk.Button(self, text='Save',command=saveterms).grid(column=1,row=0,padx=5,pady=5)
         #printing empty line.. fix it!
         
-#write option - NEEDS WORK
+#write option - NEEDS WORK - figure out how to check terms
 class StudyWrite(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
-##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-##        label.pack(pady=10,padx=10)
 
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5) #logout and return to start pg
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)#go back to previous pg
@@ -279,18 +269,37 @@ class StudyWrite(tk.Frame):
             enterbtn=tk.Button(self, text='Check', command=check).grid(column=4, row=1, padx=5, pady=5)
         file.close()
         
-#flashcard option - NEEDS WORK - figure out how to remove a label
+#flashcard option - NEEDS WORK - get def lbl, and next term function
 class StudyFlash(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
-##        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-##        label.pack(pady=10,padx=10)
 
-        def check(*args):
-            termlbl.grid_forget() #not working
+        def getTerm(*args):
+            print('thisistheterm')
 
-        def nextTerm(*args):
+        def check(*args): #flips "card"
+            if termlbl.visible:
+                print(studying)
+                file=open('studyterms.txt','r')
+                for line in file:
+                    line=line.replace('\n','').split(',')
+                    print(line)
+                    print(studying[0])
+                    if studying[0]==line[0]:
+                        termlbl.place_forget()
+                        defnlbl.place(defnlbl.pi)
+                    elif studying[0]==line[1]:
+                        pass
+            else:
+                defnlbl.place_forget()
+                termlbl.place(termlbl.pi)                        
+            termlbl.visible=not termlbl.visible
+            defnlbl.visible=not defnlbl.visible
+            #termlbl.visible=not mylable.visible #not working
+
+        def nextTerm(*args): #moves to next word
             print('next')
+            
 
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)        
@@ -307,8 +316,15 @@ class StudyFlash(tk.Frame):
             line=line.replace('\n','').split(',')
             x=random.randint(0,1)
             studying.append(line[x])
-        termlbl=tk.Label(self,text=studying[0]).grid(column=2,row=1,padx=5,pady=5)
-
+            termlbl=tk.Label(self,text=line[0])#.grid(column=2,row=1,padx=5,pady=5)
+            termlbl.visible=True
+            termlbl.place(x=20,y=50)
+            termlbl.pi=termlbl.place_info()
+            defnlbl=tk.Label(self,text=line[1])
+            defnlbl.visible=True
+            defnlbl.place(x=20,y=50)
+            defnlbl.pi=defnlbl.place_info()
+            defnlbl.place_forget()
         file.close()
 
 if __name__ == "__main__":
