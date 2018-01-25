@@ -269,7 +269,7 @@ class StudyWrite(tk.Frame):
             enterbtn=tk.Button(self, text='Check', command=check).grid(column=4, row=1, padx=5, pady=5)
         file.close()
         
-#flashcard option - NEEDS WORK - get def lbl, and next term function
+#flashcard option - NEEDS WORK - and next term function, not saving terms
 class StudyFlash(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
