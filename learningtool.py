@@ -101,9 +101,7 @@ class Study(tk.Frame):
 class CreateAccount(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-
-        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0,padx=5,pady=5)#go back to previous pg
-
+        
         #variables
         newusername=StringVar()
         newpassword=StringVar()
@@ -148,6 +146,8 @@ class CreateAccount(tk.Frame):
             file.close()
         
         #root=Tk()
+        #go back to previous pg
+        backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0,padx=5,pady=5)
         #login label
         createlbl=tk.Label(self, text='Create an Account').grid(column=0, row=1)
         #username
@@ -162,7 +162,6 @@ class CreateAccount(tk.Frame):
         checkpwlbl=tk.Label(self, text='Verify Password: ').grid(column=0, row=4)
         checkpwentry=tk.Entry(self, textvariable=checkpassword, show='*')
         checkpwentry.grid(column=1, row=4, padx=5, pady=5) #not working yet
-
         #create the button
         createbtn = tk.Button(self, text="Create", command=test).grid(column=1, row=5, padx=5, pady=5)
 
@@ -170,9 +169,6 @@ class CreateAccount(tk.Frame):
 class Terms(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
-        
-        logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
-        #backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)
 
         #variables
         terms1=StringVar()
@@ -239,9 +235,10 @@ class Terms(tk.Frame):
 
         #print(terms1.get())
         savebtn=tk.Button(self, text='Save',command=saveterms).grid(column=1,row=0,padx=5,pady=5)
-        #printing empty line.. fix it!
+        logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
+        #backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=3,row=0,padx=5,pady=5)
         
-#write option - NEEDS WORK - figure out how to check terms (similar to flashcard?)
+#write option - NEEDS WORK - figure out how to check terms (similar to flashcard?), correct/incorrect label??
 class StudyWrite(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
@@ -249,42 +246,64 @@ class StudyWrite(tk.Frame):
         #variables
         ask=StringVar()
 
+        #check if its right
+        def check(*args):
+            #finding term to study
+            #startbtn.place_forget()
+            #startbtn.visible=not startbtn.visible
+            global a
+            studying=[]
+            file=open('studyterms.txt','r')
+            for line in file:
+                #print(line)
+                line=line.replace('\n','').split(',')
+                b=random.randint(0,1)
+                studying.append(line[b])
+                termlbl=tk.Label(self,text=line[0])#.grid(column=2,row=1,padx=5,pady=5)
+                termlbl.visible=True
+                termlbl.place(x=20,y=50)
+                termlbl.pi=termlbl.place_info()
+            file.close()
+            #print(studying)
+
+##            if termlbl.visible:
+##                #print(studying)
+            file=open('studyterms.txt','r')
+            for line in file:
+                line=line.replace('\n','').split(',')
+                #print(line)
+                #print(studying[0])
+                if studying[a]==line[0]:
+                    defn=line[1]
+                if defnentry.get()==line[1]:
+                    a+=1
+                
+##            else:
+##                defnlbl.place_forget()
+##                termlbl.place(termlbl.pi)                        
+##            termlbl.visible=not termlbl.visible
+##            defnlbl.visible=not defnlbl.visible
+
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5) #logout and return to start pg
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)#go back to previous pg
         checkbtn=tk.Button(self,text='Check',command=check).grid(column=3,row=1, padx=5,pady=5)
         defnentry=tk.Entry(self, textvariable=ask)
-        defentry.grid(column=2, row=2, padx=5, pady=5)
-
-        #check if its right
-        def check(*args):
-            print('doing something')
-            #if matches, delete text in entry box, clear label
-
-            #if doesn't match, keep it there
-
-        studying=[]
-        file=open('studyterms.txt','r')
-        for line in file:
-            print(line)
-            line=line.replace('\n','').split(',')
-            x=random.randint(0,1)
-            studying.append(line[x])
-            termlbl=tk.Label(self,text=line[0])#.grid(column=2,row=1,padx=5,pady=5)
-            termlbl.visible=True
-            termlbl.place(x=20,y=50)
-            termlbl.pi=termlbl.place_info()
-        file.close()
-        print(studying)
+        defnentry.grid(column=2, row=2, padx=5, pady=5)
         
-#flashcard option - NEEDS WORK - and next term function, start button dissapear
+#flashcard option - NEEDS WORK - next term function, start button dissapear, wont flip card
 class StudyFlash(tk.Frame):
     def __init__(self, parent, controller):        
         tk.Frame.__init__(self, parent)
+
+        global a
+        a=0
 
         def getTerm(*args):
             #finding term to study
             #startbtn.place_forget()
             #startbtn.visible=not startbtn.visible
+            global studying
+            global a
             studying=[]
             file=open('studyterms.txt','r')
             for line in file:
@@ -292,41 +311,93 @@ class StudyFlash(tk.Frame):
                 line=line.replace('\n','').split(',')
                 x=random.randint(0,1)
                 studying.append(line[x])
-                termlbl=tk.Label(self,text=line[0])#.grid(column=2,row=1,padx=5,pady=5)
-                termlbl.visible=True
-                termlbl.place(x=20,y=50)
-                termlbl.pi=termlbl.place_info()
-                defnlbl=tk.Label(self,text=line[1])
-                defnlbl.visible=True
-                defnlbl.place(x=20,y=50)
-                defnlbl.pi=defnlbl.place_info()
-                defnlbl.place_forget()
             file.close()
             print(studying)
 
-        def check(*args): #flips "card"
-            if termlbl.visible:
-                print(studying)
-                file=open('studyterms.txt','r')
-                for line in file:
-                    line=line.replace('\n','').split(',')
-                    print(line)
-                    #print(studying[0])
-                    if studying[0]==line[0]:
-                        termlbl.place_forget()
-                        defnlbl.place(defnlbl.pi)
-                    elif studying[0]==line[1]:
-                        pass
-            else:
-                defnlbl.place_forget()
-                termlbl.place(termlbl.pi)                        
-            termlbl.visible=not termlbl.visible
-            defnlbl.visible=not defnlbl.visible
-            #termlbl.visible=not termlbl.visible #not working
+            termlbl=tk.Label(self, text=studying[a])#.grid
+            termlbl.visible=True
+            termlbl.place(x=20,y=50)
+            termlbl.pi=termlbl.place_info()
+            defnlbl=tk.Label(self)
+            defnlbl.visible=True
+            defnlbl.place(x=20,y=50)
+            defnlbl.pi=defnlbl.place_info()
+            defnlbl.place_forget()
+
+        def check(*args): #flips "card" - NOT FLIPPING EVERYTIME
+            #finding term to study
+            #startbtn.place_forget()
+            #startbtn.visible=not startbtn.visible
+            global a
+            global studying
+
+            termlbl=tk.Label(self, text=studying[a])#.grid
+            termlbl.visible=True
+            termlbl.place(x=20,y=50)
+            termlbl.pi=termlbl.place_info()
+            defnlbl=tk.Label(self)
+            defnlbl.visible=True
+            defnlbl.place(x=20,y=50)
+            defnlbl.pi=defnlbl.place_info()
+            defnlbl.place_forget()
+
+##            if termlbl.visible:
+##                #print(studying)
+            file=open('studyterms.txt','r')
+            for line in file:
+                line=line.replace('\n','').split(',')
+                #print(line)
+                #print(studying[0])
+                if studying[a]==line[0]:
+                    termlbl.place_forget()
+                    defnlbl.place(defnlbl.pi)
+                elif studying[a]==line[1]:
+                    defnlbl.place_forget()
+                    termlbl.place(termlbl.pi)
+                
+##            else:
+##                defnlbl.place_forget()
+##                termlbl.place(termlbl.pi)                        
+##            termlbl.visible=not termlbl.visible
+##            defnlbl.visible=not defnlbl.visible
 
         def nextTerm(*args): #moves to next word
-            print('next')
+            global a
+            global studying
+            #print(studying[a])
+            termlbl=tk.Label(self)#.grid
+            termlbl.visible=True
+            termlbl.place(x=20,y=50)
+            termlbl.pi=termlbl.place_info()
+            defnlbl=tk.Label(self)
+            defnlbl.visible=True
+            defnlbl.place(x=20,y=50)
+            defnlbl.pi=defnlbl.place_info()
+            defnlbl.place_forget()
             
+            a+=1
+            file=open('studyterms.txt','r')
+            for line in file:
+                line=line.replace('\n','').split(',')
+                #print(line[0])
+                #print(line[1])
+                #print(studying[0])
+                if a>=5:
+                    a=0
+                #else:
+                if studying[a]==line[0]:
+                    #print(studying[a],line[0])
+                    termlbl.place_forget()
+                    defnlbl.place(defnlbl.pi)
+                    print('got it')
+                    break
+                elif studying[a]==line[1]:
+                    #print(studying[a],line[1])
+                    defnlbl.place_forget()
+                    termlbl.place(termlbl.pi)
+                    print('sweet')
+                    break
+        
         logoutbtn = tk.Button(self, text="Logout", command=lambda: controller.show_frame(StartPage)).grid(column=0,row=0, padx=5, pady=5)
         backbtn=tk.Button(self, text='Back',command=lambda: controller.show_frame(Study)).grid(column=1,row=0,padx=5,pady=5)        
         flipbtn=tk.Button(self, text='Flip',command=check).grid(column=2, row=3, padx=5, pady=5)
